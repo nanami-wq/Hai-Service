@@ -7,14 +7,14 @@ import (
 )
 
 func GenerateRouter(r *gin.Engine) {
-	r.Use(gin.Recovery(), middleware.CorsWare())
+	r.Use(gin.Recovery(), middleware.CorsWare(), middleware.ResponseMiddleware())
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
-	g1 := r.Group("/api/sv", middleware.JWTAuthMiddleware())
+	g1 := r.Group("/api")
 	pic := controller.NewPictureController()
 	pic.Register(g1)
 }

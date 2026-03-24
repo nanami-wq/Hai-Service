@@ -16,6 +16,7 @@ func NewPictureUsecase(repo domain.PictureRepository, generator domain.ImageGene
 }
 
 type GeneratePictureInput struct {
+	ImageBase64    string
 	Prompt         string
 	NegativePrompt string
 	Size           string
@@ -26,19 +27,21 @@ type GeneratePictureInput struct {
 }
 
 func (u *PictureUsecase) GenerateAndSave(ctx context.Context, in GeneratePictureInput) (*domain.Picture, *domain.GenerateImageResult, error) {
-	if in.Prompt == "" {
-		return nil, nil, errors.New("prompt empty")
+	if in.ImageBase64 == "" {
+		return nil, nil, errors.New("image base64 empty")
 	}
+
 	model := in.Model
 	if model == "" {
-		model = "qwen-image-2.0-pro"
+		model = "wan2.5-i2i-preview"
 	}
 	size := in.Size
 	if size == "" {
-		size = "2048*2048"
+		size = "1280*1280"
 	}
 
 	res, err := u.generator.Generate(ctx, domain.GenerateImageRequest{
+		ImageBase64:    in.ImageBase64,
 		Model:          model,
 		Prompt:         in.Prompt,
 		NegativePrompt: in.NegativePrompt,
@@ -53,7 +56,7 @@ func (u *PictureUsecase) GenerateAndSave(ctx context.Context, in GeneratePicture
 
 	p := &domain.Picture{
 		Prompt:   in.Prompt,
-		ImageURL: res.ImageURL,
+		ImageURL: res.ImageURL, // 固定保存白底图
 	}
 	if err := u.repo.Create(ctx, p); err != nil {
 		return nil, nil, err

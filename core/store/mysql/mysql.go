@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"Hai-Service/config"
+	"Hai-Service/domain"
 	"errors"
 	"fmt"
 	"time"
@@ -74,6 +75,9 @@ func InitMySQL() (*gorm.DB, error) {
 		return nil, errors.New("mysql ping failed: " + err.Error())
 	}
 
+	if err := AutoMigrateAll(db); err != nil {
+		return nil, errors.New("mysql automigrate failed: " + err.Error())
+	}
 	return db, nil
 }
 
@@ -154,4 +158,18 @@ func newOrm(opts ...Option) (*Orm, error) {
 	}
 	m.DB = db
 	return m, nil
+}
+
+func AutoMigrateAll(db any) error {
+	gdb, ok := db.(interface {
+		AutoMigrate(dst ...any) error
+	})
+	if !ok {
+		return errors.New("invalid gorm db")
+	}
+
+	// 把需要迁移的表都放这里
+	return gdb.AutoMigrate(
+		&domain.Picture{},
+	)
 }
