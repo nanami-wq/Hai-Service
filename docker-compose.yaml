@@ -1,0 +1,10 @@
+services:
+  Hai-mysql:
+    image: bitnami/mysql:latest
+    container_name: service-test-mysql
+    ports:
+      - "13306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=hai-service
+      - MYSQL_CHARSET=utf8mb4
